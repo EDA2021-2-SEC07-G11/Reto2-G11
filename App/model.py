@@ -55,23 +55,37 @@ def newCatalog():
 
 # Funciones para agregar informacion al catalogo
 def addArtwork(catalog, artwork):
-    lt.addLast(catalog['artworks'], artwork)
+    artistasObra = lt.newList()
+    artistasId = artwork['ConstituentID'].replace('[','').replace(']','').split(',')
+    n = 0
+    while n < len(artistasId):
+        artistasId[n] = artistasId[n].lstrip()
+        n += 1
+    for i in lt.iterator(catalog['artists']):
+        artista = i['Artista']
+        if artista['ConstituentID'] in artistasId:
+            lt.addLast(i['Obras'], artwork)
+            lt.addLast(artistasObra, artista['DisplayName'])
+    lt.addLast(catalog["artworks"],{'Obra': artwork, 'Artistas': artistasObra})
     addArtworkMedium(catalog, artwork)
 
+def addArtist(catalog, artist):
+    # Se adiciona el libro a la lista de libros
+    obras = lt.newList()
+    lt.addLast(catalog["artists"],{'Artista': artist, 'Obras': obras})
+
 def addArtworkMedium(catalog, artwork):
-    medio = artwork['medium']
+    medio = artwork['Medium']
     if mp.contains(catalog['mediums'], medio):
         entrada = mp.get(catalog['mediums'], medio)
         listaObras = me.getValue(entrada)
         lt.addLast(listaObras, artwork)
     else:
         listaObras = lt.newList('ARRAY_LIST')
-        lt.addLast(artwork)
+        lt.addLast(listaObras, artwork)
         mp.put(catalog['mediums'], medio, listaObras)
 
-def addArtist(catalog, artist):
-    iD = artist['ConstituentID']
-    mp.put(catalog['artists'], iD, artist)
+
 
 # Funciones para creacion de datos
 
