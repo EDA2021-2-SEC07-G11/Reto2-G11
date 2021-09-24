@@ -48,15 +48,14 @@ def newCatalog():
                'artworks': None,
                'mediums': None }
     catalog['artists'] = lt.newList('ARRAY_LIST')
-    catalog['artworks'] = mp.newMap()
+    catalog['artworks'] = lt.newList('ARRAY_LIST')
     catalog['mediums'] = mp.newMap()
     catalog
     return catalog
 
 # Funciones para agregar informacion al catalogo
 def addArtwork(catalog, artwork):
-    iD = artwork['ObjectID']
-    mp.put(catalog['artworks'], iD, artwork)
+    lt.addLast(catalog['artworks'], artwork)
     addArtworkMedium(catalog, artwork)
 
 def addArtworkMedium(catalog, artwork):
