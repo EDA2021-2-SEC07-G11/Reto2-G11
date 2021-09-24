@@ -37,7 +37,7 @@ operación solicitada
 def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- ")
+    print("2- Obras más antiguas.")
 
 catalog = None
 
@@ -118,7 +118,9 @@ while True:
         imprimir_ultimostresartist(lista)
 
     elif int(inputs[0]) == 2:
-        pass
+        numero=input("Digite el numero de obras que desea sacar: ")
+        lista=controller.obrasmasantiguas(catalog,numero)
+        print(lista)
 
     else:
         sys.exit(0)
