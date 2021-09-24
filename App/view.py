@@ -41,6 +41,66 @@ def printMenu():
 
 catalog = None
 
+def initCatalog():
+    """
+    Inicializa el catalogo
+    """
+    return controller.initCatalog()
+    
+def loadData(catalog):
+    """
+    Carga los datos en la estructura de datos
+    """
+    controller.loadData(catalog)
+
+def printartwork(artwork):
+    print('Titulo: ' + artwork['Obra']['Title'] )
+
+def printartworkFecha(artwork):
+    print('Titulo: ' + artwork['Obra']['Title'] + '. Fecha de adquisición: '+ artwork['Obra']['DateAcquired'] )
+
+def printarworkInfo(artwork):
+    print()
+
+def printartist(artist):
+    print('Nombre: ' + artist['Artista']['DisplayName'])
+
+
+def imprimir_ultimostresworks(lista):
+    print("Estas son las ultimas tres obras: ")
+    contador=0
+    puesto=lt.size(lista)
+    while contador<3:
+        printartwork(lt.getElement(lista,puesto))
+        puesto+=-1
+        contador+=1
+
+def imprimir_ultimostresworksFecha(lista):
+    print("Estas son las últimas tres obras: ")
+    contador=0
+    puesto=lt.size(lista) - 2
+    while contador<3:
+        printartworkFecha(lt.getElement(lista,puesto))
+        puesto+=1
+        contador+=1
+
+def imprimir_primerostresworksFecha(lista):
+    print("Estas son las primeras tres obras: ")
+    contador=0
+    puesto=1
+    while contador<3:
+        printartworkFecha(lt.getElement(lista,puesto))
+        puesto+=1
+        contador+=1
+
+def imprimir_ultimostresartist(lista):
+    print("Estas son los ultimos tres artistas: ")
+    contador=0
+    puesto=lt.size(lista)
+    while contador<3:
+        printartist(lt.getElement(lista,puesto))
+        puesto+=-1
+        contador+=1
 """
 Menu principal
 """
@@ -48,7 +108,14 @@ while True:
     printMenu()
     inputs = input('Seleccione una opción para continuar\n')
     if int(inputs[0]) == 1:
-        print("Cargando información de los archivos ....")
+        catalog = initCatalog()
+        loadData(catalog)
+        print('Obras Cargadas: ' + str(lt.size(catalog['artworks'])))
+        lista=catalog["artworks"]
+        imprimir_ultimostresworks(lista)
+        print('Artistas cargados: ' + str(lt.size(catalog['artists'])))
+        lista=catalog["artists"]
+        imprimir_ultimostresartist(lista)
 
     elif int(inputs[0]) == 2:
         pass
