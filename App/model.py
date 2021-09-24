@@ -38,8 +38,41 @@ los mismos.
 """
 
 # Construccion de modelos
+def newCatalog():
+    """
+    Inicializa el catálogo. Crea una lista vacia para guardar
+    todos los artistas, adicionalmente, crea una lista vacia para las obras de arte,
+    Retorna el catalogo inicializado.
+    """
+    catalog = {'artists': None,
+               'artworks': None,
+               'mediums': None }
+    catalog['artists'] = lt.newList('ARRAY_LIST')
+    catalog['artworks'] = mp.newMap()
+    catalog['mediums'] = mp.newMap()
+    catalog
+    return catalog
 
 # Funciones para agregar informacion al catalogo
+def addArtwork(catalog, artwork):
+    iD = artwork['ObjectID']
+    mp.put(catalog['artworks'], iD, artwork)
+    addArtworkMedium(catalog, artwork)
+
+def addArtworkMedium(catalog, artwork):
+    medio = artwork['medium']
+    if mp.contains(catalog['mediums'], medio):
+        entrada = mp.get(catalog['mediums'], medio)
+        listaObras = me.getValue(entrada)
+        lt.addLast(listaObras, artwork)
+    else:
+        listaObras = lt.newList('ARRAY_LIST')
+        lt.addLast(artwork)
+        mp.put(catalog['mediums'], medio, listaObras)
+
+def addArtist(catalog, artist):
+    iD = artist['ConstituentID']
+    mp.put(catalog['artists'], iD, artist)
 
 # Funciones para creacion de datos
 
