@@ -28,6 +28,7 @@
 import config as cf
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
+from DISClib.Algorithms.Sorting import mergesort as merge
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import shellsort as sa
 assert cf
@@ -77,7 +78,27 @@ def addArtist(catalog, artist):
 # Funciones para creacion de datos
 
 # Funciones de consulta
+def obrasmasantiguas(catalog,cantidad):
+    return False
 
+
+        
 # Funciones utilizadas para comparar elementos dentro de una lista
+def cmpArtworkByDate(artwork1, artwork2):
+    """
+    Devuelve verdadero (True) si el 'Date' de artwork1 es menores que el de artwork2
+    Args:
+    artwork1: informacion de la primera obra que incluye su valor 'Date'
+    artwork2: informacion de la segunda obra que incluye su valor 'Date'
+    """
+    obra1 = artwork1['Date']
+    obra2 = artwork2['Date']
+    if obra1 < obra2:
+        return True
+    else:
+        return False
 
 # Funciones de ordenamiento
+def ordenarObrasPorFecha(lista):
+    listadef=merge.sort(lista,cmpArtworkByDate)
+    return listadef
