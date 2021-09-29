@@ -29,6 +29,7 @@ import config as cf
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.Algorithms.Sorting import mergesort as merge
+from DISClib.Algorithms.Sorting import quicksort as qk
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import shellsort as sa
 assert cf
@@ -49,40 +50,45 @@ def newCatalog():
                'artworks': None,
                'mediums': None }
     catalog['artists'] = lt.newList('ARRAY_LIST')
-    catalog['artworks'] = mp.newMap()
-    catalog['mediums'] = mp.newMap()
-    catalog
+    catalog['artworks'] = lt.newList('ARRAY_LIST')
+    catalog["mediums"]=mp.newMap(maptype="PROBING")
     return catalog
 
 # Funciones para agregar informacion al catalogo
 def addArtwork(catalog, artwork):
-    iD = artwork['ObjectID']
-    mp.put(catalog['artworks'], iD, artwork)
-    addArtworkMedium(catalog, artwork)
+    lt.addLast(catalog["artworks"],artwork)
+    # Se adiciona el libro a la lista de libros
+def addArtist(catalog, artist):
+    # Se adiciona el libro a la lista de libros
+    lt.addLast(catalog["artists"],artist)
+
+# Funciones para agregar informacion al catalogo
 
 def addArtworkMedium(catalog, artwork):
-    medio = artwork['medium']
-    if mp.contains(catalog['mediums'], medio):
-        entrada = mp.get(catalog['mediums'], medio)
-        listaObras = me.getValue(entrada)
-        lt.addLast(listaObras, artwork)
+    medio = artwork['Medium']
+    if mp.contains(catalog["mediums"],medio):
+        entry=mp.get(catalog["mediums"],medio)
+        lista=me.getValue(entry)
+        lt.addLast(lista,artwork)   
     else:
-        listaObras = lt.newList('ARRAY_LIST')
-        lt.addLast(artwork)
-        mp.put(catalog['mediums'], medio, listaObras)
-
-def addArtist(catalog, artist):
-    iD = artist['ConstituentID']
-    mp.put(catalog['artists'], iD, artist)
+        listaObras =lt.newList('ARRAY_LIST')
+        lt.addLast(listaObras,artwork)
+        mp.put(catalog["mediums"], medio, listaObras)
+    
 
 # Funciones para creacion de datos
 
 # Funciones de consulta
-def obrasmasantiguas(catalog,cantidad):
-    lista=catalog["artworks"]
-    listaord=ordenarObrasPorFecha(lista)
-    mlista=lt.subList(listaord,0,cantidad)
-    return mlista
+def obrasmasantiguas(catalog,medio,cantidad):
+    if mp.contains(catalog["mediums"],medio):
+        entry=mp.get(catalog["mediums"],medio)
+        lista=me.getValue(entry)
+        listaord=ordenarObrasPorFecha(lista)
+        mlista=lt.subList(listaord,0,cantidad)
+        return mlista
+    else:
+        return False
+    
 
 
         
@@ -96,12 +102,18 @@ def cmpArtworkByDate(artwork1, artwork2):
     """
     obra1 = artwork1['Date']
     obra2 = artwork2['Date']
-    if obra1 < obra2:
-        return True
+    if obra1=="":
+        obra1=0
+    elif obra2=="":
+        obra2=0
     else:
-        return False
+        if int(obra1) < int(obra2):
+            return True
+    
+        else:
+            return False
 
 # Funciones de ordenamiento
 def ordenarObrasPorFecha(lista):
-    listadef=merge.sort(lista,cmpArtworkByDate)
+    listadef=qk.sort(lista,cmpArtworkByDate)
     return listadef

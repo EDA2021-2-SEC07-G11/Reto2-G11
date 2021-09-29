@@ -25,6 +25,7 @@ import model
 import csv
 
 
+
 """
 El controlador se encarga de mediar entre la vista y el modelo.
 """
@@ -46,6 +47,8 @@ def loadData(catalog):
     """
     loadArtists(catalog)
     loadArtworks(catalog)
+    loadMedium(catalog)
+
 
 def loadArtists(catalog):
     """
@@ -55,6 +58,15 @@ def loadArtists(catalog):
     input_file = csv.DictReader(open(artistsFile, encoding='utf-8'))
     for artist in input_file:
         model.addArtist(catalog, artist)
+def loadMedium(catalog):
+    """
+    Carga todas las obras de arte del archivo
+    """
+    artworksFile = cf.data_dir + 'MoMA/Artworks-utf8-small.csv'
+    input_file = csv.DictReader(open(artworksFile, encoding='utf-8'))
+    for artwork in input_file:
+        model.addArtworkMedium(catalog, artwork)
+
 
 def loadArtworks(catalog):
     """
@@ -64,8 +76,8 @@ def loadArtworks(catalog):
     input_file = csv.DictReader(open(artworksFile, encoding='utf-8'))
     for artwork in input_file:
         model.addArtwork(catalog, artwork)
-def obrasmasantiguas(catalog,numero):
-    lista=model.obrasmasantiguas(catalog,numero)
+def obrasmasantiguas(catalog,medio,numero):
+    lista=model.obrasmasantiguas(catalog,medio,numero)
     return lista
 
 

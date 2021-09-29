@@ -25,6 +25,7 @@ import sys
 import controller
 from DISClib.ADT import list as lt
 assert cf
+from DISClib.ADT import map as mp
 
 
 """
@@ -37,7 +38,7 @@ operación solicitada
 def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- Obras más antiguas.")
+    print("2- Obras más antiguas por medio.")
 
 catalog = None
 
@@ -54,7 +55,7 @@ def loadData(catalog):
     controller.loadData(catalog)
 
 def printartwork(artwork):
-    print('Titulo: ' + artwork['Obra']['Title'] )
+    print('Titulo: ' + artwork['Title'] )
 
 def printartworkFecha(artwork):
     print('Titulo: ' + artwork['Obra']['Title'] + '. Fecha de adquisición: '+ artwork['Obra']['DateAcquired'] )
@@ -63,7 +64,7 @@ def printarworkInfo(artwork):
     print()
 
 def printartist(artist):
-    print('Nombre: ' + artist['Artista']['DisplayName'])
+    print('Nombre: ' + artist['DisplayName'])
 
 
 def imprimir_ultimostresworks(lista):
@@ -118,9 +119,15 @@ while True:
         imprimir_ultimostresartist(lista)
 
     elif int(inputs[0]) == 2:
-        numero=input("Digite el numero de obras que desea sacar: ")
-        lista=controller.obrasmasantiguas(catalog,numero)
-        print(lista)
+        medio=input("Digite el medio utilizado por los artistas: ")
+        numero=int(input("Digite el numero de obras que desea sacar: "))
+        lista=controller.obrasmasantiguas(catalog,medio,numero)
+        if lista==False:
+            print("El medio no se encuentra en el catalogo.")
+        else:
+            print(lista)
+
+        
 
     else:
         sys.exit(0)
