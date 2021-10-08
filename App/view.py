@@ -100,7 +100,7 @@ def imprimir_ultimostresartist(lista):
     contador=0
     puesto=lt.size(lista)
     while contador<3:
-        printartist(lt.getElement(lista,puesto))
+        printartist(lt.getElement(lista,puesto)['Artista'])
         puesto+=-1
         contador+=1
 """

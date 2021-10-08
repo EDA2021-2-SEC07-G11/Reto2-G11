@@ -61,18 +61,23 @@ def addArtwork(catalog, artwork):
     lt.addLast(catalog["artworks"],artwork)
     # Se adiciona el libro a la lista de libros
 
+
 def addArtist(catalog, artist):
     # Se adiciona el libro a la lista de libros
-    lt.addLast(catalog["artists"],artist)
+    obras = obrasArtista(artist['ConstituentID'], catalog)
+    artista = {'Artista': artist, 'Obras':obras}
+    lt.addLast(catalog["artists"],artista)
+
 
 def addNationalities(catalog):
     artistas = catalog['artists']
     nacionalidades = catalog['nationalities']
     for i in lt.iterator(artistas):
-        nacionalidad = i['Nationality']
+        artista = i['Artista']
+        nacionalidad = artista['Nationality']
         if(nacionalidad ==''):
             nacionalidad = 'Unknown'
-        obrasArtist = obrasArtista(i['ConstituentID'], catalog)
+        obrasArtist = i['Obras']
         if mp.contains(nacionalidades,nacionalidad):
             entry=mp.get(nacionalidades,nacionalidad)
             lista=me.getValue(entry)
@@ -112,6 +117,7 @@ def obrasmasantiguas(catalog,medio,cantidad):
     else:
         return False
 
+
 def obrasArtista(artistId, catalog):
     obras = catalog['artworks']
     lista = lt.newList('ARRAY_LIST',cmpArtworks)
@@ -122,6 +128,7 @@ def obrasArtista(artistId, catalog):
         if artistId in artistasObra:
             lt.addLast(lista, obra)
     return lista
+
 
 def darObrasNacionalidad(catalog, nationality):
     nacionalidades = catalog['nationalities']
