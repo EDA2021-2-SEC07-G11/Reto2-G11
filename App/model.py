@@ -48,19 +48,42 @@ def newCatalog():
     """
     catalog = {'artists': None,
                'artworks': None,
-               'mediums': None }
+               'mediums': None,
+               'nationalities': None }
     catalog['artists'] = lt.newList('ARRAY_LIST')
     catalog['artworks'] = lt.newList('ARRAY_LIST')
     catalog["mediums"]=mp.newMap(maptype="PROBING")
+    catalog['nationalities']= mp.newMap()
     return catalog
 
 # Funciones para agregar informacion al catalogo
 def addArtwork(catalog, artwork):
     lt.addLast(catalog["artworks"],artwork)
     # Se adiciona el libro a la lista de libros
+
 def addArtist(catalog, artist):
     # Se adiciona el libro a la lista de libros
     lt.addLast(catalog["artists"],artist)
+
+def addNationalities(catalog):
+    artistas = catalog['artists']
+    nacionalidades = catalog['nationalities']
+    for i in lt.iterator(artistas):
+        nacionalidad = i['Nationality']
+        if(nacionalidad ==''):
+            nacionalidad = 'Unknown'
+        obrasArtist = obrasArtista(i['ConstituentID'], catalog)
+        if mp.contains(nacionalidades,nacionalidad):
+            entry=mp.get(nacionalidades,nacionalidad)
+            lista=me.getValue(entry)
+            for obra in lt.iterator(obrasArtist):
+                if not(lt.isPresent(lista, obra)):
+                    lt.addLast(lista, obra)
+        else:
+            mp.put(nacionalidades, nacionalidad, obrasArtist)
+        
+            
+
 
 # Funciones para agregar informacion al catalogo
 
@@ -88,6 +111,29 @@ def obrasmasantiguas(catalog,medio,cantidad):
         return mlista
     else:
         return False
+
+def obrasArtista(artistId, catalog):
+    obras = catalog['artworks']
+    lista = lt.newList('ARRAY_LIST',cmpArtworks)
+    for obra in lt.iterator(obras):
+        artistasObra = obra['ConstituentID'].replace('[','').replace(']','').split(',')
+        for i in artistasObra:
+            i = i.strip()
+        if artistId in artistasObra:
+            lt.addLast(lista, obra)
+    return lista
+
+def darObrasNacionalidad(catalog, nationality):
+    nacionalidades = catalog['nationalities']
+    if mp.contains(nacionalidades, nationality):
+        entry=mp.get(nacionalidades, nationality)
+        lista=me.getValue(entry)
+        return lista
+    else:
+        return None
+
+
+
     
 
 
@@ -112,6 +158,15 @@ def cmpArtworkByDate(artwork1, artwork2):
     
         else:
             return False
+
+def cmpArtworks(a1,a2):
+    iD1= a1['ObjectID']
+    iD2= a2['ObjectID']
+    if iD1 > iD2:
+        return 1
+    elif iD2 > iD1:
+        return -1
+    return 0
 
 # Funciones de ordenamiento
 def ordenarObrasPorFecha(lista):

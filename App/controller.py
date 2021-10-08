@@ -48,6 +48,7 @@ def loadData(catalog):
     loadArtists(catalog)
     loadArtworks(catalog)
     loadMedium(catalog)
+    loadNationalities(catalog)
 
 
 def loadArtists(catalog):
@@ -67,6 +68,12 @@ def loadMedium(catalog):
     for artwork in input_file:
         model.addArtworkMedium(catalog, artwork)
 
+def loadNationalities(catalog):
+    """
+    Carga todas las obras de arte del archivo
+    """
+    model.addNationalities(catalog)
+
 
 def loadArtworks(catalog):
     """
@@ -84,3 +91,5 @@ def obrasmasantiguas(catalog,medio,numero):
 # Funciones de ordenamiento
 
 # Funciones de consulta sobre el catálogo
+def obrasNacionalidad(catalog, nationality):
+    return model.darObrasNacionalidad(catalog, nationality)

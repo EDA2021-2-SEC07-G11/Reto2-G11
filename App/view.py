@@ -39,6 +39,7 @@ def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
     print("2- Obras más antiguas por medio.")
+    print("3- Número de obras de una nacionalidad")
 
 catalog = None
 
@@ -127,7 +128,13 @@ while True:
         else:
             print(lista)
 
-        
+    elif int(inputs[0]) == 3:
+        nacionalidad=input("Digite la nacionalidad buscada: \n ")
+        lista=controller.obrasNacionalidad(catalog, nacionalidad)
+        if lista==None:
+            print("La nacionalidad no encuentra en el catalogo.")
+        else:
+            print('La nacionalidad '+ nacionalidad + ' contiene '+str(lt.size(lista))+' obras')
 
     else:
         sys.exit(0)
