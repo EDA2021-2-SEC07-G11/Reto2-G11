@@ -23,6 +23,7 @@
 import config as cf
 import model
 import csv
+import time
 
 
 
@@ -45,44 +46,34 @@ def loadData(catalog):
     Carga los datos de los archivos y cargar los datos en la
     estructura de datos
     """
+    start_time = time.process_time()
     loadArtworks(catalog)
     loadArtists(catalog)
-    loadMedium(catalog)
-    loadNationalities(catalog)
+    stop_time = time.process_time()
+    elapsed_time_mseg = (stop_time - start_time)*1000
+    print(elapsed_time_mseg)
 
 
 def loadArtists(catalog):
     """
     Carga los artistas del archivo. 
     """
-    artistsFile = cf.data_dir + 'MoMA/Artists-utf8-small.csv'
+    artistsFile = cf.data_dir + 'MoMA/Artists-utf8-20pct.csv'
     input_file = csv.DictReader(open(artistsFile, encoding='utf-8'))
     for artist in input_file:
         model.addArtist(catalog, artist)
-def loadMedium(catalog):
-    """
-    Carga todas las obras de arte del archivo
-    """
-    artworksFile = cf.data_dir + 'MoMA/Artworks-utf8-small.csv'
-    input_file = csv.DictReader(open(artworksFile, encoding='utf-8'))
-    for artwork in input_file:
-        model.addArtworkMedium(catalog, artwork)
-
-def loadNationalities(catalog):
-    """
-    Carga todas las obras de arte del archivo
-    """
-    model.addNationalities(catalog)
-
 
 def loadArtworks(catalog):
     """
     Carga todas las obras de arte del archivo
     """
-    artworksFile = cf.data_dir + 'MoMA/Artworks-utf8-small.csv'
+    artworksFile = cf.data_dir + 'MoMA/Artworks-utf8-20pct.csv'
     input_file = csv.DictReader(open(artworksFile, encoding='utf-8'))
     for artwork in input_file:
         model.addArtwork(catalog, artwork)
+
+
+
 def obrasmasantiguas(catalog,medio,numero):
     lista=model.obrasmasantiguas(catalog,medio,numero)
     return lista

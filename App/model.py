@@ -25,6 +25,7 @@
  """
 
 
+from DISClib.DataStructures.arraylist import isPresent, size
 import config as cf
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
@@ -59,40 +60,35 @@ def newCatalog():
 # Funciones para agregar informacion al catalogo
 def addArtwork(catalog, artwork):
     lt.addLast(catalog["artworks"],artwork)
-    # Se adiciona el libro a la lista de libros
+    artwork['ConstituentID'] = artwork['ConstituentID'].replace('[','').replace(']','').split(',')
+    for i in artwork['ConstituentID']:
+        i = i.strip()
+    addArtworkMedium(catalog, artwork)
+
 
 
 def addArtist(catalog, artist):
     # Se adiciona el libro a la lista de libros
-    obras = obrasArtista(artist['ConstituentID'], catalog)
-    artista = {'Artista': artist, 'Obras':obras}
-    lt.addLast(catalog["artists"],artista)
+    lt.addLast(catalog["artists"],artist)
+    addNationality(catalog, artist)
 
 
-def addNationalities(catalog):
-    artistas = catalog['artists']
+def addNationality(catalog, artista):
+    nacionalidad = artista['Nationality']
     nacionalidades = catalog['nationalities']
-    for i in lt.iterator(artistas):
-        artista = i['Artista']
-        nacionalidad = artista['Nationality']
-        if(nacionalidad ==''):
-            nacionalidad = 'Unknown'
-        obrasArtist = i['Obras']
-        if mp.contains(nacionalidades,nacionalidad):
-            entry=mp.get(nacionalidades,nacionalidad)
-            lista=me.getValue(entry)
-            for obra in lt.iterator(obrasArtist):
-                if not(lt.isPresent(lista, obra)):
-                    lt.addLast(lista, obra)
-        else:
-            mp.put(nacionalidades, nacionalidad, obrasArtist)
+    if(nacionalidad ==''):
+        nacionalidad = 'Unknown'
+    if mp.contains(nacionalidades,nacionalidad):
+        entry=mp.get(nacionalidades,nacionalidad)
+        lista=me.getValue(entry)
+        if not(lt.isPresent(lista, artwork)):
+            lt.addLast(lista, artwork)
+    else:
+        listaNacionalidad = lt.newList('ARRAY_LIST', cmpArtworks)
+        mp.put(nacionalidades, nacionalidad,listaNacionalidad)
         
-            
 
-
-# Funciones para agregar informacion al catalogo
-
-def addArtworkMedium(catalog, artwork):
+def addArtworkMedium(catalog,artwork):
     medio = artwork['Medium']
     if mp.contains(catalog["mediums"],medio):
         entry=mp.get(catalog["mediums"],medio)
@@ -117,17 +113,6 @@ def obrasmasantiguas(catalog,medio,cantidad):
     else:
         return False
 
-
-def obrasArtista(artistId, catalog):
-    obras = catalog['artworks']
-    lista = lt.newList('ARRAY_LIST',cmpArtworks)
-    for obra in lt.iterator(obras):
-        artistasObra = obra['ConstituentID'].replace('[','').replace(']','').split(',')
-        for i in artistasObra:
-            i = i.strip()
-        if artistId in artistasObra:
-            lt.addLast(lista, obra)
-    return lista
 
 
 def darObrasNacionalidad(catalog, nationality):
@@ -174,6 +159,7 @@ def cmpArtworks(a1,a2):
     elif iD2 > iD1:
         return -1
     return 0
+
 
 # Funciones de ordenamiento
 def ordenarObrasPorFecha(lista):
