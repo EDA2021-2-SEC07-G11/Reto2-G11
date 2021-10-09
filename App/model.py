@@ -53,27 +53,34 @@ def newCatalog():
                'nationalities': None }
     catalog['artists'] = lt.newList('ARRAY_LIST')
     catalog['artworks'] = lt.newList('ARRAY_LIST')
-    catalog["mediums"]=mp.newMap(maptype='CHAINING', loadfactor= 4.00)
-    catalog['nationalities']= mp.newMap(maptype='CHAINING',loadfactor=4.00)
+    catalog["mediums"]=mp.newMap(maptype='PROBING', loadfactor= 0.50)
+    catalog['nationalities']= mp.newMap(maptype='PROBING',loadfactor=0.50)
     return catalog
 
 # Funciones para agregar informacion al catalogo
 def addArtwork(catalog, artwork):
     lt.addLast(catalog["artworks"],artwork)
+    artistas = catalog['artists']
     artwork['ConstituentID'] = artwork['ConstituentID'].replace('[','').replace(']','').split(',')
     for i in artwork['ConstituentID']:
         i = i.strip()
+    total = len(artwork['ConstituentID'])
+    cantidad = 0
+    for artista in lt.iterator(artistas):
+        if artista['ConstituentID'] in artwork['ConstituentID']:
+            addNationality(catalog, artista, artwork)
+            cantidad += 1
+        if cantidad == total:
+            break
     addArtworkMedium(catalog, artwork)
-
 
 
 def addArtist(catalog, artist):
     # Se adiciona el libro a la lista de libros
     lt.addLast(catalog["artists"],artist)
-    addNationality(catalog, artist)
 
 
-def addNationality(catalog, artista):
+def addNationality(catalog, artista, artwork):
     nacionalidad = artista['Nationality']
     nacionalidades = catalog['nationalities']
     if(nacionalidad ==''):
@@ -85,6 +92,7 @@ def addNationality(catalog, artista):
             lt.addLast(lista, artwork)
     else:
         listaNacionalidad = lt.newList('ARRAY_LIST', cmpArtworks)
+        lt.addLast(listaNacionalidad, artwork)
         mp.put(nacionalidades, nacionalidad,listaNacionalidad)
         
 
@@ -126,6 +134,7 @@ def darObrasNacionalidad(catalog, nationality):
 
 
 
+
     
 
 
@@ -154,6 +163,15 @@ def cmpArtworkByDate(artwork1, artwork2):
 def cmpArtworks(a1,a2):
     iD1= a1['ObjectID']
     iD2= a2['ObjectID']
+    if iD1 > iD2:
+        return 1
+    elif iD2 > iD1:
+        return -1
+    return 0
+
+def cmpArtists(a1,a2):
+    iD1= a1['ConstituentID']
+    iD2= a2['ConstituentID']
     if iD1 > iD2:
         return 1
     elif iD2 > iD1:

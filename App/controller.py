@@ -47,8 +47,8 @@ def loadData(catalog):
     estructura de datos
     """
     start_time = time.process_time()
-    loadArtworks(catalog)
     loadArtists(catalog)
+    loadArtworks(catalog)
     stop_time = time.process_time()
     elapsed_time_mseg = (stop_time - start_time)*1000
     print(elapsed_time_mseg)
@@ -58,7 +58,7 @@ def loadArtists(catalog):
     """
     Carga los artistas del archivo. 
     """
-    artistsFile = cf.data_dir + 'MoMA/Artists-utf8-20pct.csv'
+    artistsFile = cf.data_dir + 'MoMA/Artists-utf8-large.csv'
     input_file = csv.DictReader(open(artistsFile, encoding='utf-8'))
     for artist in input_file:
         model.addArtist(catalog, artist)
@@ -67,7 +67,7 @@ def loadArtworks(catalog):
     """
     Carga todas las obras de arte del archivo
     """
-    artworksFile = cf.data_dir + 'MoMA/Artworks-utf8-20pct.csv'
+    artworksFile = cf.data_dir + 'MoMA/Artworks-utf8-large.csv'
     input_file = csv.DictReader(open(artworksFile, encoding='utf-8'))
     for artwork in input_file:
         model.addArtwork(catalog, artwork)
