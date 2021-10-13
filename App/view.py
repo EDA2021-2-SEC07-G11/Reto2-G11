@@ -86,6 +86,7 @@ def imprimir_ultimostresworksFecha(lista):
         puesto+=1
         contador+=1
 
+
 def imprimir_primerostresworksFecha(lista):
     print("Estas son las primeras tres obras: ")
     contador=0

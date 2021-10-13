@@ -53,8 +53,8 @@ def newCatalog():
                'nationalities': None }
     catalog['artists'] = lt.newList('ARRAY_LIST')
     catalog['artworks'] = lt.newList('ARRAY_LIST')
-    catalog["mediums"]=mp.newMap(maptype='PROBING', loadfactor= 0.50)
-    catalog['nationalities']= mp.newMap(maptype='PROBING',loadfactor=0.50)
+    catalog["mediums"]=mp.newMap(maptype='PROBING', loadfactor= 0.80)
+    catalog['nationalities']= mp.newMap(maptype='PROBING',loadfactor=0.80)
     return catalog
 
 # Funciones para agregar informacion al catalogo
