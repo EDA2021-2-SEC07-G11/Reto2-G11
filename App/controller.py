@@ -58,7 +58,7 @@ def loadArtists(catalog):
     """
     Carga los artistas del archivo. 
     """
-    artistsFile = cf.data_dir + 'MoMA/Artists-utf8-small.csv'
+    artistsFile = cf.data_dir + 'MoMA/Artists-utf8-large.csv'
     input_file = csv.DictReader(open(artistsFile, encoding='utf-8'))
     for artist in input_file:
         model.addArtist(catalog, artist)
@@ -67,16 +67,14 @@ def loadArtworks(catalog):
     """
     Carga todas las obras de arte del archivo
     """
-    artworksFile = cf.data_dir + 'MoMA/Artworks-utf8-small.csv'
+    artworksFile = cf.data_dir + 'MoMA/Artworks-utf8-large.csv'
     input_file = csv.DictReader(open(artworksFile, encoding='utf-8'))
     for artwork in input_file:
         model.addArtwork(catalog, artwork)
 
 
 
-def obrasmasantiguas(catalog,medio,numero):
-    lista=model.obrasmasantiguas(catalog,medio,numero)
-    return lista
+
 
 
 # Funciones de ordenamiento
@@ -84,3 +82,16 @@ def obrasmasantiguas(catalog,medio,numero):
 # Funciones de consulta sobre el catálogo
 def obrasNacionalidad(catalog, nationality):
     return model.darObrasNacionalidad(catalog, nationality)
+
+def obrasmasantiguas(catalog,medio,numero):
+    lista=model.obrasmasantiguas(catalog,medio,numero)
+    return lista
+
+def darArtistasRango(catalog, inicio, fin):
+    return model.darArtistasRango(catalog, inicio, fin)
+
+def darInfoArtistas1(lista):
+    return model.darViejosyJovenes(lista)
+
+def buscarArtista(catalog, nombre):
+    return model.buscarArtista(catalog, nombre)

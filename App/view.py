@@ -26,6 +26,7 @@ import controller
 from DISClib.ADT import list as lt
 assert cf
 from DISClib.ADT import map as mp
+from tabulate import tabulate
 
 
 """
@@ -38,8 +39,9 @@ operación solicitada
 def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- Obras más antiguas por medio.")
-    print("3- Número de obras de una nacionalidad")
+    print("2- Dar Artistas en un rango de fecha")
+    print("3- Obras más antiguas por medio.")
+    print("4- Número de obras de una nacionalidad")
 
 catalog = None
 
@@ -119,17 +121,39 @@ while True:
         print('Artistas cargados: ' + str(lt.size(catalog['artists'])))
         lista=catalog["artists"]
         imprimir_ultimostresartist(lista)
-
+    
     elif int(inputs[0]) == 2:
-        medio=input("Digite el medio utilizado por los artistas: ")
-        numero=int(input("Digite el numero de obras que desea sacar: "))
-        lista=controller.obrasmasantiguas(catalog,medio,numero)
-        if lista==False:
-            print("El medio no se encuentra en el catalogo.")
+        inicio=input("Ingrese el año inicial de nacimiento: ")
+        if (inicio.isnumeric() == False) :
+            print("Ha ingresado un año inválido")
         else:
-            print(lista)
+            inicio = int(inicio)
+            fin = input("Ingrese el año final de nacimiento: ")
+            if (fin.isnumeric() == False or int(fin)< inicio) :
+                print("Ha ingresado un año inválido")
+            else:
+                fin = int(fin)
+                lista = controller.darArtistasRango(catalog,inicio,fin)
+                if(lt.isEmpty(lista)):
+                    print("No hay artistas en este rango")
+                else:
+                    artistas = controller.darInfoArtistas1(lista)
+                    print("Hay " + str(lt.size(lista))+" artistas nacidos entre " +str(inicio)+" y "+str(fin))
+                    print('Los 3 primeros y últimos artistas en el rango son:')
+                    print(tabulate(artistas, headers=['DisplayName', 'BeginDate','EndDate','Nationality','Gender'], tablefmt='fancy_grid'))
+
 
     elif int(inputs[0]) == 3:
+        nombre=input("Digite el nombre del artista: ")
+        artista = controller.buscarArtista(catalog, nombre)
+        if artista != False:
+            print('a')
+        else:
+            print('Este artista no se encuentra en nuestra base de datos')
+
+        
+
+    elif int(inputs[0]) == 4:
         nacionalidad=input("Digite la nacionalidad buscada: \n ")
         lista=controller.obrasNacionalidad(catalog, nacionalidad)
         if lista==None:

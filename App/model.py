@@ -55,29 +55,31 @@ def newCatalog():
     catalog['artworks'] = lt.newList('ARRAY_LIST')
     catalog["mediums"]=mp.newMap(maptype='PROBING', loadfactor= 0.80)
     catalog['nationalities']= mp.newMap(maptype='PROBING',loadfactor=0.80)
+    catalog['años'] = mp.newMap(maptype='PROBING',loadfactor=0.80)
     return catalog
 
 # Funciones para agregar informacion al catalogo
 def addArtwork(catalog, artwork):
-    lt.addLast(catalog["artworks"],artwork)
     artistas = catalog['artists']
     artwork['ConstituentID'] = artwork['ConstituentID'].replace('[','').replace(']','').split(',')
     for i in artwork['ConstituentID']:
         i = i.strip()
-    total = len(artwork['ConstituentID'])
-    cantidad = 0
-    for artista in lt.iterator(artistas):
-        if artista['ConstituentID'] in artwork['ConstituentID']:
-            addNationality(catalog, artista, artwork)
-            cantidad += 1
-        if cantidad == total:
-            break
+    lt.addLast(catalog["artworks"],artwork)
+    #total = len(artwork['ConstituentID'])
+    #cantidad = 0
+    #for artista in lt.iterator(artistas):
+    #    if artista['ConstituentID'] in artwork['ConstituentID']:
+   #         addNationality(catalog, artista, artwork)
+    #        cantidad += 1
+     #   if cantidad == total:
+      #      break
     addArtworkMedium(catalog, artwork)
 
 
 def addArtist(catalog, artist):
     # Se adiciona el libro a la lista de libros
     lt.addLast(catalog["artists"],artist)
+    agregarArtistaFecha(catalog, artist)
 
 
 def addNationality(catalog, artista, artwork):
@@ -133,9 +135,83 @@ def darObrasNacionalidad(catalog, nationality):
         return None
 
 
+def agregarArtistaFecha(catalog, artist):
+    mapa = catalog['años']
+    fecha = artist['BeginDate']
+    if(fecha == ''):
+        fecha = 10000
+    else:
+        fecha = int(fecha)
+    if mp.contains(mapa, fecha):
+        entry=mp.get(mapa, fecha)
+        lista=me.getValue(entry)
+        lt.addLast(lista, artist)
+    else:
+        lista = lt.newList()
+        lt.addLast(lista, artist)
+        mp.put(mapa, fecha, lista)
 
+def darArtistasRango(catalog, inicio, fin):
+    lista = lt.newList(datastructure='ARRAY_LIST')
+    mapa = catalog['años']
+    for i in range(inicio, fin):
+        if mp.contains(mapa, i):
+            entry=mp.get(mapa, i)
+            artistas=me.getValue(entry)
+            for artista in lt.iterator(artistas):
+                lt.addLast(lista, artista)
+    return merge.sort(lista, cmpArtistDate)
 
     
+def darViejosyJovenes(lista):
+    retorno = []
+    if lt.size(lista) >= 3:
+        n = 1
+        while n < 4:
+            artista = lt.getElement(lista, n)
+            retorno.append(darInfoArtista1(artista))
+            n += 1
+        n = lt.size(lista) - 2
+        while n < lt.size(lista)+1:
+            artista = lt.getElement(lista, n)
+            retorno.append(darInfoArtista1(artista))
+            n += 1
+    else:
+        for artista in lt.iterator(lista):
+            retorno.append(darInfoArtista1(artista))
+    return retorno
+
+def darInfoArtista1(artista):
+    nombre = artista['DisplayName']
+    if nombre == "":
+        nombre = "Unknown"
+    inicio = artista['BeginDate']
+    if inicio == "":
+        inicio = "Unknown"
+    final = artista['EndDate']
+    if final == "":
+        final = "Unknown"
+    if int(final) ==0 and int(final) <int(inicio):
+        final = "Todavía Vive"
+    nacionalidad = artista['Nationality']
+    if nacionalidad == "":
+        nacionalidad = "Unknown"
+    genero = artista['Gender']
+    if genero == "":
+        genero = "Unknown"
+    return nombre, inicio, final, nacionalidad, genero
+
+def buscarArtista(catalog, nombre):
+    artistas = catalog['artists']
+    for artista in lt.iterator(artistas):
+        if artista['DisplayName'] == nombre:
+            return artista
+    return False
+
+def darMediosArtista(catalog, artista):
+    medios = catalog['mediums']
+    iD = artista['ConstituentID']
+
 
 
         
@@ -173,10 +249,18 @@ def cmpArtists(a1,a2):
     iD1= a1['ConstituentID']
     iD2= a2['ConstituentID']
     if iD1 > iD2:
-        return 1
+        return False
     elif iD2 > iD1:
-        return -1
-    return 0
+        return True
+
+
+def cmpArtistDate(a1,a2):
+    fecha1= a1['BeginDate']
+    fecha2= a2['BeginDate']
+    if(fecha1 < fecha2):
+        return True
+    else:
+        return False
 
 
 # Funciones de ordenamiento
