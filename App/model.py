@@ -55,15 +55,18 @@ def newCatalog():
     catalog['artworks'] = lt.newList('ARRAY_LIST')
     catalog["mediums"]=mp.newMap(maptype='PROBING', loadfactor= 0.80)
     catalog['nationalities']= mp.newMap(maptype='PROBING',loadfactor=0.80)
-    catalog['años'] = mp.newMap(maptype='PROBING',loadfactor=0.80)
+    catalog['añosArtistas'] = mp.newMap(maptype='PROBING',loadfactor=0.80)
+    catalog['fechasObras'] = mp.newMap(maptype='PROBING',loadfactor=0.80)
     return catalog
 
 # Funciones para agregar informacion al catalogo
 def addArtwork(catalog, artwork):
     artistas = catalog['artists']
     artwork['ConstituentID'] = artwork['ConstituentID'].replace('[','').replace(']','').split(',')
-    for i in artwork['ConstituentID']:
-        i = i.strip()
+    n = 0
+    while n < len(artwork['ConstituentID']):
+        artwork['ConstituentID'][n] = artwork['ConstituentID'][n].strip()
+        n += 1
     lt.addLast(catalog["artworks"],artwork)
     #total = len(artwork['ConstituentID'])
     #cantidad = 0
@@ -74,6 +77,7 @@ def addArtwork(catalog, artwork):
      #   if cantidad == total:
       #      break
     addArtworkMedium(catalog, artwork)
+    agregarObraFecha(catalog, artwork)
 
 
 def addArtist(catalog, artist):
@@ -108,6 +112,34 @@ def addArtworkMedium(catalog,artwork):
         listaObras =lt.newList('ARRAY_LIST')
         lt.addLast(listaObras,artwork)
         mp.put(catalog["mediums"], medio, listaObras)
+
+def agregarArtistaFecha(catalog, artist):
+    mapa = catalog['añosArtistas']
+    fecha = artist['BeginDate']
+    if(fecha == ''):
+        fecha = 10000
+    else:
+        fecha = int(fecha)
+    if mp.contains(mapa, fecha):
+        entry=mp.get(mapa, fecha)
+        lista=me.getValue(entry)
+        lt.addLast(lista, artist)
+    else:
+        lista = lt.newList()
+        lt.addLast(lista, artist)
+        mp.put(mapa, fecha, lista)
+
+def agregarObraFecha(catalog, artwork):
+    mapa = catalog['fechasObras']
+    fecha = artwork['DateAcquired']
+    if mp.contains(mapa, fecha):
+        entry=mp.get(mapa, fecha)
+        lista=me.getValue(entry)
+        lt.addLast(lista, artwork)
+    else:
+        lista = lt.newList()
+        lt.addLast(lista, artwork)
+        mp.put(mapa, fecha, lista)
     
 
 # Funciones para creacion de datos
@@ -135,25 +167,11 @@ def darObrasNacionalidad(catalog, nationality):
         return None
 
 
-def agregarArtistaFecha(catalog, artist):
-    mapa = catalog['años']
-    fecha = artist['BeginDate']
-    if(fecha == ''):
-        fecha = 10000
-    else:
-        fecha = int(fecha)
-    if mp.contains(mapa, fecha):
-        entry=mp.get(mapa, fecha)
-        lista=me.getValue(entry)
-        lt.addLast(lista, artist)
-    else:
-        lista = lt.newList()
-        lt.addLast(lista, artist)
-        mp.put(mapa, fecha, lista)
+
 
 def darArtistasRango(catalog, inicio, fin):
     lista = lt.newList(datastructure='ARRAY_LIST')
-    mapa = catalog['años']
+    mapa = catalog['añosArtistas']
     for i in range(inicio, fin):
         if mp.contains(mapa, i):
             entry=mp.get(mapa, i)
@@ -162,6 +180,24 @@ def darArtistasRango(catalog, inicio, fin):
                 lt.addLast(lista, artista)
     return merge.sort(lista, cmpArtistDate)
 
+def darObrasRango(catalog, inicio, fin):
+    lista = lt.newList(datastructure='ARRAY_LIST')
+    mapa = catalog['fechasObras']
+    fechas = mp.keySet(mapa)
+    for fecha in lt.iterator(fechas):
+        if fecha>= inicio and fecha <= fin:
+            entry=mp.get(mapa, fecha)
+            obras=me.getValue(entry)
+            for obra in lt.iterator(obras):
+                lt.addLast(lista, obra)
+    return merge.sort(lista, cmpArtworkByDateAcquired)
+
+def obrasCompradas(lista):
+    n = 0
+    for obra in lt.iterator(lista):
+        if 'purchase' in obra['CreditLine'].lower():
+            n += 1
+    return n 
     
 def darViejosyJovenes(lista):
     retorno = []
@@ -179,6 +215,24 @@ def darViejosyJovenes(lista):
     else:
         for artista in lt.iterator(lista):
             retorno.append(darInfoArtista1(artista))
+    return retorno
+
+def darViejosyJovenesObra(catalog, lista):
+    retorno = []
+    if lt.size(lista) >= 3:
+        n = 1
+        while n < 4:
+            obra = lt.getElement(lista, n)
+            retorno.append(darInfoObra2(catalog,obra))
+            n += 1
+        n = lt.size(lista) - 2
+        while n < lt.size(lista)+1:
+            obra = lt.getElement(lista, n)
+            retorno.append(darInfoObra2(catalog,obra))
+            n += 1
+    else:
+        for obra in lt.iterator(lista):
+            retorno.append(darInfoObra2(catalog,obra))
     return retorno
 
 def darInfoArtista1(artista):
@@ -200,6 +254,69 @@ def darInfoArtista1(artista):
     if genero == "":
         genero = "Unknown"
     return nombre, inicio, final, nacionalidad, genero
+
+def darInfoObra2(catalog, obra):
+    titulo = obra['Title']
+    if titulo == "":
+        titulo = "Unknown"
+    if len(titulo) > 20:
+        contador = 20
+        while contador < len(titulo):
+            if(titulo[contador-2] == ' '):
+                titulo = titulo[:contador-1]+'\n'+titulo[contador-1:]
+            else: 
+                titulo = titulo[:contador]+'\n'+titulo[contador:]
+            contador+=20
+    fecha = obra['Date']
+    if fecha == '':
+        fecha = 'Unknown'
+    fechaCompra = obra['DateAcquired']
+    if fechaCompra == '':
+        fechaCompra = 'Unknown'
+    medio = obra['Medium']
+    if medio == '':
+        medio = 'Unknown'
+    if len(medio) > 20:
+        contador = 20
+        while contador < len(medio):
+            if (medio[contador-2]==' '):
+                medio = medio[:contador-1]+'\n'+medio[contador-1:]
+            else:
+                medio = medio[:contador]+'\n'+medio[contador:]
+            contador+=20
+    dimensiones = obra['Dimensions']
+    if dimensiones == '':
+        dimensiones = 'Unknown'
+    if len(dimensiones) > 22:
+            contador = 22
+            while contador < len(dimensiones):
+                if(dimensiones[contador-2]==' '):
+                    dimensiones = dimensiones[:contador-1]+'\n'+dimensiones[contador-1:]
+                else:
+                    dimensiones = dimensiones[:contador]+'\n'+dimensiones[contador:]
+                contador+=22
+    artistas = darArtistasObra(catalog, obra)
+    if artistas == '':
+        artistas = 'Unkwnown'
+    return titulo, artistas, fecha, fechaCompra, medio, dimensiones
+
+
+def darArtistasObra(catalog, artwork):
+    print(artwork['ConstituentID'])
+    total = len(artwork['ConstituentID'])
+    n = 0
+    respuesta = ''
+    for artista in lt.iterator(catalog['artists']):
+        if artista['ConstituentID'] in artwork['ConstituentID']:
+            respuesta += artista['DisplayName']+'\n'
+            n += 1
+        if n == total:
+            return respuesta
+    return respuesta
+        
+
+        
+    
 
 def buscarArtista(catalog, nombre):
     artistas = catalog['artists']
@@ -245,6 +362,26 @@ def cmpArtworkByDate(artwork1, artwork2):
         obra2=0
     else:
         if int(obra1) < int(obra2):
+            return True
+    
+        else:
+            return False
+
+def cmpArtworkByDateAcquired(artwork1, artwork2):
+    """
+    Devuelve verdadero (True) si el 'Date' de artwork1 es menores que el de artwork2
+    Args:
+    artwork1: informacion de la primera obra que incluye su valor 'Date'
+    artwork2: informacion de la segunda obra que incluye su valor 'Date'
+    """
+    obra1 = artwork1['DateAcquired']
+    obra2 = artwork2['DateAcquired']
+    if obra1=="":
+        obra1=0
+    elif obra2=="":
+        obra2=0
+    else:
+        if obra1 < obra2:
             return True
     
         else:

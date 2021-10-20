@@ -40,8 +40,8 @@ operación solicitada
 def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- Dar Artistas en un rango de fecha")
-    print("2- Dar Artistas en un rango de fecha")
+    print("2- Dar Artistas en un rango de años de nacimiento")
+    print("3- Dar Obras en un rango de fecha de compra")
     print("4- Obras de un artista por medio.")
     print("5- Número de obras de una nacionalidad")
 
@@ -144,6 +144,25 @@ while True:
                     print('Los 3 primeros y últimos artistas en el rango son:')
                     print(tabulate(artistas, headers=['DisplayName', 'BeginDate','EndDate','Nationality','Gender'], tablefmt='fancy_grid'))
 
+    elif int(inputs[0]) == 3:
+        inicio=input("Ingrese el año inicial de compra en formato AAAA-MM-DD: ")
+        formato = inicio.split('-')
+        if (len(formato) != 3 or len(formato[0]) != 4 or len(formato[1]) != 2 or len(formato[2]) != 2):
+            print('Ha ingresado una fecha inicial inválida')
+        else:
+            fin = input('Ingrese el año final de compra en formato AAAA-MM-DD: ')
+            formato = fin.split('-')
+            if(len(formato) != 3 or len(formato[0]) != 4 or len(formato[1]) != 2 or len(formato[2]) != 2 or inicio > fin):
+                print('Ha ingresado una fecha final inválida')
+            else:
+                lista = controller.darObrasRango(catalog, inicio, fin)
+                artistas = controller.darInfoObras2(catalog, lista)
+                print('El MOMA adquirió '+str(lt.size(lista))+ ' piezas únicas entre '+inicio+ ' y '+fin)
+                print('De las cuales compró '+ str(controller.darObrasCompradas(lista)))
+                print('Las 3 primeras y últimas obras en el rango son:')
+                print(tabulate(artistas, headers=['Title', 'ArtistsName','Date','DateAcquired','Medium','Dimensions'], tablefmt='fancy_grid'))
+
+        
 
     elif int(inputs[0]) == 4:
         nombre=input("Digite el nombre del artista: ")

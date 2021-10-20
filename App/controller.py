@@ -46,12 +46,8 @@ def loadData(catalog):
     Carga los datos de los archivos y cargar los datos en la
     estructura de datos
     """
-    start_time = time.process_time()
     loadArtists(catalog)
     loadArtworks(catalog)
-    stop_time = time.process_time()
-    elapsed_time_mseg = (stop_time - start_time)*1000
-    print(elapsed_time_mseg)
 
 
 def loadArtists(catalog):
@@ -90,8 +86,17 @@ def obrasmasantiguas(catalog,medio,numero):
 def darArtistasRango(catalog, inicio, fin):
     return model.darArtistasRango(catalog, inicio, fin)
 
+def darObrasRango(catalog, inicio, fin):
+    return model.darObrasRango(catalog, inicio, fin)
+
+def darObrasCompradas(lista):
+    return model.obrasCompradas(lista)
+
 def darInfoArtistas1(lista):
     return model.darViejosyJovenes(lista)
+
+def darInfoObras2(catalog,lista):
+    return model.darViejosyJovenesObra(catalog, lista)
 
 def buscarArtista(catalog, nombre):
     return model.buscarArtista(catalog, nombre)
