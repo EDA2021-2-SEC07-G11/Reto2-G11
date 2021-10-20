@@ -98,6 +98,9 @@ def darInfoArtistas1(lista):
 def darInfoObras2(catalog,lista):
     return model.darViejosyJovenesObra(catalog, lista)
 
+def darInfoObras3(lista):
+    return model.darPrimerayUltimasObra(lista)
+
 def buscarArtista(catalog, nombre):
     return model.buscarArtista(catalog, nombre)
 

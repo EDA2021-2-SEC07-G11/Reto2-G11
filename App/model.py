@@ -201,7 +201,7 @@ def obrasCompradas(lista):
     
 def darViejosyJovenes(lista):
     retorno = []
-    if lt.size(lista) >= 3:
+    if lt.size(lista) >= 6:
         n = 1
         while n < 4:
             artista = lt.getElement(lista, n)
@@ -219,7 +219,7 @@ def darViejosyJovenes(lista):
 
 def darViejosyJovenesObra(catalog, lista):
     retorno = []
-    if lt.size(lista) >= 3:
+    if lt.size(lista) >= 6:
         n = 1
         while n < 4:
             obra = lt.getElement(lista, n)
@@ -233,6 +233,24 @@ def darViejosyJovenesObra(catalog, lista):
     else:
         for obra in lt.iterator(lista):
             retorno.append(darInfoObra2(catalog,obra))
+    return retorno
+
+def darPrimerayUltimasObra(lista):
+    retorno = []
+    if lt.size(lista) >= 6:
+        n = 1
+        while n < 4:
+            obra = lt.getElement(lista, n)
+            retorno.append(darInfoObra3(obra))
+            n += 1
+        n = lt.size(lista) - 2
+        while n < lt.size(lista)+1:
+            obra = lt.getElement(lista, n)
+            retorno.append(darInfoObra3(obra))
+            n += 1
+    else:
+        for obra in lt.iterator(lista):
+            retorno.append(darInfoObra3(obra))
     return retorno
 
 def darInfoArtista1(artista):
@@ -300,6 +318,45 @@ def darInfoObra2(catalog, obra):
         artistas = 'Unkwnown'
     return titulo, artistas, fecha, fechaCompra, medio, dimensiones
 
+def darInfoObra3(obra):
+    titulo = obra['Title']
+    if titulo == "":
+        titulo = "Unknown"
+    if len(titulo) > 20:
+        contador = 20
+        while contador < len(titulo):
+            if(titulo[contador-2] == ' '):
+                titulo = titulo[:contador-1]+'\n'+titulo[contador-1:]
+            else: 
+                titulo = titulo[:contador]+'\n'+titulo[contador:]
+            contador+=20
+    fecha = obra['Date']
+    if fecha == '':
+        fecha = 'Unknown'
+    medio = obra['Medium']
+    if medio == '':
+        medio = 'Unknown'
+    if len(medio) > 20:
+        contador = 20
+        while contador < len(medio):
+            if (medio[contador-2]==' '):
+                medio = medio[:contador-1]+'\n'+medio[contador-1:]
+            else:
+                medio = medio[:contador]+'\n'+medio[contador:]
+            contador+=20
+    dimensiones = obra['Dimensions']
+    if dimensiones == '':
+        dimensiones = 'Unknown'
+    if len(dimensiones) > 22:
+            contador = 22
+            while contador < len(dimensiones):
+                if(dimensiones[contador-2]==' '):
+                    dimensiones = dimensiones[:contador-1]+'\n'+dimensiones[contador-1:]
+                else:
+                    dimensiones = dimensiones[:contador]+'\n'+dimensiones[contador:]
+                contador+=22
+    return titulo, fecha, medio, dimensiones
+
 
 def darArtistasObra(catalog, artwork):
     print(artwork['ConstituentID'])
@@ -329,7 +386,7 @@ def darMediosArtista(catalog, artista):
     medios = catalog['mediums']
     iD = artista['ConstituentID']
     llaves = mp.keySet(medios)
-    mapa = mp.newMap()
+    listanueva = lt.newList('ARRAY_LIST')
     for llave in lt.iterator(llaves):
         lista = lt.newList()
         entry=mp.get(medios, llave)
@@ -338,8 +395,8 @@ def darMediosArtista(catalog, artista):
             if iD in obra['ConstituentID']:
                 lt.addLast(lista, obra)
         if lt.size(lista) > 0:
-            mp.put(mapa, llave, lista) 
-    return mapa
+            lt.addLast(listanueva,{'Medio':llave,'Obras':lista}) 
+    return merge.sort(listanueva, cmpListasMedios)
 
                 
 
@@ -414,7 +471,12 @@ def cmpArtistDate(a1,a2):
         return False
 
 def cmpListasMedios(l1,l2):
-    lista1 = l1['']
+    lista1 = lt.size(l1['Obras'])
+    lista2 = lt.size(l2['Obras'])
+    if lista1 > lista2:
+        return True
+    else:
+        return False
     
 
 

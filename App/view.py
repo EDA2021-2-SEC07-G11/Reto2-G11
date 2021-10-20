@@ -162,22 +162,31 @@ while True:
                 print('Las 3 primeras y últimas obras en el rango son:')
                 print(tabulate(artistas, headers=['Title', 'ArtistsName','Date','DateAcquired','Medium','Dimensions'], tablefmt='fancy_grid'))
 
-        
-
     elif int(inputs[0]) == 4:
         nombre=input("Digite el nombre del artista: ")
         artista = controller.buscarArtista(catalog, nombre)
         if artista != False:
-            mapa = controller.darMediosArtista(catalog, artista)
-            nacionalidades = mp.keySet(mapa)
-            for nacionalidad in lt.iterator(nacionalidades):
-                entry=mp.get(mapa,nacionalidad)
-                lista=me.getValue(entry)
-                print(nacionalidad+": "+str(lt.size(lista)))
+            lista = controller.darMediosArtista(catalog, artista)
+            respuesta = []
+            totalObras = 0
+            n = 0
+            for medio in lt.iterator(lista):
+                totalObras += lt.size(medio['Obras']) 
+                respuesta.append([medio['Medio'],lt.size(medio['Obras'])])
+                n += 1
+                if n == 5:
+                    break
+            print(artista['DisplayName']+' con ID de MOMA '+artista['ConstituentID']+' tiene '+str(totalObras)+' a su nombre en el museo')
+            print('En su trabajo hay presentes '+str(lt.size(lista))+' medios/técnicas')
+            print('Su top 5 de medios/técnicas son: ')
+            print(tabulate(respuesta, headers=['MediumName', 'Count'], tablefmt='fancy_grid'))
+            primerMedio = lt.firstElement(lista)
+            print('Su medio más utilizado es: '+ primerMedio['Medio']+ ' con '+ str(lt.size(primerMedio['Obras']))+' piezas')
+            print('Las primeras y últimas 3 obras de esta técnica son: ')
+            info = controller.darInfoObras3(primerMedio['Obras'])
+            print(tabulate(info, headers=['Title', 'Date','Medium','Dimensions'], tablefmt='fancy_grid'))
         else:
             print('Este artista no se encuentra en nuestra base de datos')
-
-        
 
     elif int(inputs[0]) == 5:
         nacionalidad=input("Digite la nacionalidad buscada: \n ")
