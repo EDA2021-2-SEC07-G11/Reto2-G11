@@ -211,6 +211,20 @@ def buscarArtista(catalog, nombre):
 def darMediosArtista(catalog, artista):
     medios = catalog['mediums']
     iD = artista['ConstituentID']
+    llaves = mp.keySet(medios)
+    mapa = mp.newMap()
+    for llave in lt.iterator(llaves):
+        lista = lt.newList()
+        entry=mp.get(medios, llave)
+        obrasMedio=me.getValue(entry)
+        for obra in lt.iterator(obrasMedio):
+            if iD in obra['ConstituentID']:
+                lt.addLast(lista, obra)
+        if lt.size(lista) > 0:
+            mp.put(mapa, llave, lista) 
+    return mapa
+
+                
 
 
 
@@ -261,6 +275,10 @@ def cmpArtistDate(a1,a2):
         return True
     else:
         return False
+
+def cmpListasMedios(l1,l2):
+    lista1 = l1['']
+    
 
 
 # Funciones de ordenamiento

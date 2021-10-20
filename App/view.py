@@ -27,6 +27,7 @@ from DISClib.ADT import list as lt
 assert cf
 from DISClib.ADT import map as mp
 from tabulate import tabulate
+from DISClib.DataStructures import mapentry as me
 
 
 """
@@ -40,8 +41,9 @@ def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
     print("2- Dar Artistas en un rango de fecha")
-    print("3- Obras más antiguas por medio.")
-    print("4- Número de obras de una nacionalidad")
+    print("2- Dar Artistas en un rango de fecha")
+    print("4- Obras de un artista por medio.")
+    print("5- Número de obras de una nacionalidad")
 
 catalog = None
 
@@ -143,17 +145,22 @@ while True:
                     print(tabulate(artistas, headers=['DisplayName', 'BeginDate','EndDate','Nationality','Gender'], tablefmt='fancy_grid'))
 
 
-    elif int(inputs[0]) == 3:
+    elif int(inputs[0]) == 4:
         nombre=input("Digite el nombre del artista: ")
         artista = controller.buscarArtista(catalog, nombre)
         if artista != False:
-            print('a')
+            mapa = controller.darMediosArtista(catalog, artista)
+            nacionalidades = mp.keySet(mapa)
+            for nacionalidad in lt.iterator(nacionalidades):
+                entry=mp.get(mapa,nacionalidad)
+                lista=me.getValue(entry)
+                print(nacionalidad+": "+str(lt.size(lista)))
         else:
             print('Este artista no se encuentra en nuestra base de datos')
 
         
 
-    elif int(inputs[0]) == 4:
+    elif int(inputs[0]) == 5:
         nacionalidad=input("Digite la nacionalidad buscada: \n ")
         lista=controller.obrasNacionalidad(catalog, nacionalidad)
         if lista==None:
