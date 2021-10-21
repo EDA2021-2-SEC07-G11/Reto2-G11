@@ -44,6 +44,7 @@ def printMenu():
     print("3- Dar Obras en un rango de fecha de compra")
     print("4- Obras de un artista por medio.")
     print("5- Número de obras de una nacionalidad")
+    print("6- Transportar obras de un departamento")
 
 catalog = None
 
@@ -195,6 +196,24 @@ while True:
             print("La nacionalidad no encuentra en el catalogo.")
         else:
             print('La nacionalidad '+ nacionalidad + ' contiene '+str(lt.size(lista))+' obras')
+
+    elif int(inputs[0]) == 6:
+        nombre=input("Digite el nombre del departamento: ")
+        obrasDpto = controller.darObrasDepartamento(catalog, nombre)
+        if obrasDpto != False:
+            print('El MOMA va a transportar '+str(lt.size(obrasDpto))+' artefactos del departamento '+nombre)
+            print('RECUERDE! NO toda la información del MOMA está completa!!!... Estos son estimados')
+            print('Peso estimado de carga (kg): '+str(controller.pesoLista(obrasDpto)))
+            print('Costo estimado de carga (USD): '+str(round(controller.costoLista(obrasDpto),3)))
+            print('Los 5 objetos más costosos a transportar son: ')
+            info = controller.darInfoObras5(catalog,obrasDpto)
+            print(tabulate(info, headers=['Title', 'ArtistsName','Classification','Date','Medium','Dimensions','TransCost(USD)'], tablefmt='fancy_grid'))
+            info = controller.darInfoObrasViejas(catalog,obrasDpto)
+            print('Los 5 objetos más antiguos a transportar son:')
+            print(tabulate(info, headers=['Title', 'ArtistsName','Classification','Date','Medium','Dimensions','TransCost(USD)'], tablefmt='fancy_grid'))
+
+        else:
+            print('Este departamento no se encuentra en nuestra base de datos')
 
     else:
         sys.exit(0)

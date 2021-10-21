@@ -50,13 +50,17 @@ def newCatalog():
     catalog = {'artists': None,
                'artworks': None,
                'mediums': None,
-               'nationalities': None }
+               'nationalities': None,
+               'añosArtistas': None,
+               'fechasObras': None,
+               'departamentos': None }
     catalog['artists'] = lt.newList('ARRAY_LIST')
     catalog['artworks'] = lt.newList('ARRAY_LIST')
     catalog["mediums"]=mp.newMap(maptype='PROBING', loadfactor= 0.80)
     catalog['nationalities']= mp.newMap(maptype='PROBING',loadfactor=0.80)
     catalog['añosArtistas'] = mp.newMap(maptype='PROBING',loadfactor=0.80)
     catalog['fechasObras'] = mp.newMap(maptype='PROBING',loadfactor=0.80)
+    catalog['departamentos'] = mp.newMap(maptype='PROBING',loadfactor=0.80)
     return catalog
 
 # Funciones para agregar informacion al catalogo
@@ -78,6 +82,7 @@ def addArtwork(catalog, artwork):
       #      break
     addArtworkMedium(catalog, artwork)
     agregarObraFecha(catalog, artwork)
+    agregarObraDepartamento(catalog, artwork)
 
 
 def addArtist(catalog, artist):
@@ -140,7 +145,18 @@ def agregarObraFecha(catalog, artwork):
         lista = lt.newList()
         lt.addLast(lista, artwork)
         mp.put(mapa, fecha, lista)
-    
+
+def agregarObraDepartamento(catalog, artwork):
+    mapa = catalog['departamentos']
+    dpto = artwork['Department']
+    if mp.contains(mapa, dpto):
+        entry=mp.get(mapa, dpto)
+        lista=me.getValue(entry)
+        lt.addLast(lista, artwork)
+    else:
+        lista = lt.newList()
+        lt.addLast(lista, artwork)
+        mp.put(mapa, dpto, lista)
 
 # Funciones para creacion de datos
 
@@ -357,9 +373,54 @@ def darInfoObra3(obra):
                 contador+=22
     return titulo, fecha, medio, dimensiones
 
+def darInfoObra5(catalog,obra):
+    titulo = obra['Title']
+    if titulo == "":
+        titulo = "Unknown"
+    if len(titulo) > 20:
+        contador = 20
+        while contador < len(titulo):
+            if(titulo[contador-2] == ' '):
+                titulo = titulo[:contador-1]+'\n'+titulo[contador-1:]
+            else: 
+                titulo = titulo[:contador]+'\n'+titulo[contador:]
+            contador+=20
+    fecha = obra['Date']
+    if fecha == '':
+        fecha = 'Unknown'
+    clasificacion = obra['Classification']
+    if clasificacion == '':
+        clasificacion = 'Unknown'
+    medio = obra['Medium']
+    if medio == '':
+        medio = 'Unknown'
+    if len(medio) > 20:
+        contador = 20
+        while contador < len(medio):
+            if (medio[contador-2]==' '):
+                medio = medio[:contador-1]+'\n'+medio[contador-1:]
+            else:
+                medio = medio[:contador]+'\n'+medio[contador:]
+            contador+=20
+    dimensiones = obra['Dimensions']
+    if dimensiones == '':
+        dimensiones = 'Unknown'
+    if len(dimensiones) > 22:
+            contador = 22
+            while contador < len(dimensiones):
+                if(dimensiones[contador-2]==' '):
+                    dimensiones = dimensiones[:contador-1]+'\n'+dimensiones[contador-1:]
+                else:
+                    dimensiones = dimensiones[:contador]+'\n'+dimensiones[contador:]
+                contador+=22
+    artistas = darArtistasObra(catalog, obra)
+    if artistas == '':
+        artistas = 'Unkwnown'
+    costo = darCostoObra(obra)
+    return titulo, artistas, clasificacion, fecha, medio, dimensiones, costo
+
 
 def darArtistasObra(catalog, artwork):
-    print(artwork['ConstituentID'])
     total = len(artwork['ConstituentID'])
     n = 0
     respuesta = ''
@@ -371,7 +432,33 @@ def darArtistasObra(catalog, artwork):
             return respuesta
     return respuesta
         
+def darObrasDepartamento(catalog, nombre):
+    dptos = catalog['departamentos']
+    if mp.contains(dptos, nombre):
+        entry=mp.get(dptos, nombre)
+        obrasdpto=me.getValue(entry)
+        return merge.sort(obrasdpto, compararObrasPorCosto)
+    else:
+        return False
 
+def darCostosas(catalog,lista):
+    respuesta = []
+    n = 1
+    while n <= 5:
+        obra = lt.getElement(lista, n)
+        respuesta.append(darInfoObra5(catalog,obra))
+        n += 1
+    return respuesta
+
+def darViejas(catalog,lista):
+    lista = qk.sort(lista, cmpArtworkByDate)
+    respuesta = []
+    n = 1
+    while n <= 5:
+        obra = lt.getElement(lista, n)
+        respuesta.append(darInfoObra5(catalog,obra))
+        n += 1
+    return respuesta  
         
     
 
@@ -399,7 +486,60 @@ def darMediosArtista(catalog, artista):
     return merge.sort(listanueva, cmpListasMedios)
 
                 
+def darPesoTotal(lista):
+    peso = 0
+    for i in lt.iterator(lista):
+        if(i['Weight (kg)'] != ''):
+            peso += float(i['Weight (kg)'])
+    return peso
 
+def darCostoObra(artwork):
+    costo = 0
+    if artwork['Weight (kg)'] != '':
+        peso = float(artwork['Weight (kg)'])
+    else:
+        peso = 0
+    tamano = 0
+    alto = artwork['Height (cm)']
+    largo = artwork['Length (cm)']
+    ancho = artwork['Width (cm)']
+    if alto != '':
+        alto = float(alto)/100
+        tamano = alto
+        if largo != '':
+            largo = float(largo)/100
+            tamano *= largo
+            if(ancho != ''):
+                ancho = float(ancho)/100
+                tamano *= ancho
+        else:
+            if(ancho != ''):
+                ancho = float(ancho)/100
+                tamano *= ancho
+    elif largo != '':
+        largo = float(largo)/100
+        tamano = largo
+        if ancho != '':
+            ancho = float(ancho)/100
+            tamano *= ancho
+    elif ancho != '':
+        ancho = float(ancho)/100
+        tamano = ancho
+    
+    if(peso>0 or tamano > 0):
+        if (peso * 72 >= tamano*72):
+            costo = peso * 72
+        else:
+            costo = tamano *72
+    else:
+        costo = 48
+    return costo
+
+def darCostoLista(lista):
+    costo = 0
+    for i in lt.iterator(lista):
+        costo += darCostoObra(i)
+    return costo
 
 
         
@@ -478,6 +618,15 @@ def cmpListasMedios(l1,l2):
     else:
         return False
     
+def compararObrasPorCosto(artwork1, artwork2):
+    artwork1 = artwork1
+    costo1 = darCostoObra(artwork1)
+    artwork2 = artwork2
+    costo2 =darCostoObra(artwork2)
+    if(costo1 > costo2):
+        return True
+    else:
+        return False
 
 
 # Funciones de ordenamiento

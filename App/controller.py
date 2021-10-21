@@ -101,8 +101,23 @@ def darInfoObras2(catalog,lista):
 def darInfoObras3(lista):
     return model.darPrimerayUltimasObra(lista)
 
+def darInfoObras5(catalog,lista):
+    return model.darCostosas(catalog, lista)
+
+def darInfoObrasViejas(catalog,lista):
+    return model.darViejas(catalog, lista)
+
 def buscarArtista(catalog, nombre):
     return model.buscarArtista(catalog, nombre)
 
 def darMediosArtista(catalog, artist):
     return model.darMediosArtista(catalog, artist)
+
+def darObrasDepartamento(catalog, nombre):
+    return model.darObrasDepartamento(catalog, nombre)
+
+def costoLista(lista):
+    return model.darCostoLista(lista)
+
+def pesoLista(lista):
+    return model.darPesoTotal(lista)
