@@ -28,6 +28,7 @@ assert cf
 from DISClib.ADT import map as mp
 from tabulate import tabulate
 from DISClib.DataStructures import mapentry as me
+import time
 
 
 """
@@ -132,6 +133,7 @@ while True:
         else:
             inicio = int(inicio)
             fin = input("Ingrese el año final de nacimiento: ")
+            start_time = time.process_time()
             if (fin.isnumeric() == False or int(fin)< inicio) :
                 print("Ha ingresado un año inválido")
             else:
@@ -144,6 +146,9 @@ while True:
                     print("Hay " + str(lt.size(lista))+" artistas nacidos entre " +str(inicio)+" y "+str(fin))
                     print('Los 3 primeros y últimos artistas en el rango son:')
                     print(tabulate(artistas, headers=['DisplayName', 'BeginDate','EndDate','Nationality','Gender'], tablefmt='fancy_grid'))
+                    stop_time = time.process_time()
+                    elapsed_time_mseg = (stop_time - start_time)*1000
+                    print(elapsed_time_mseg)
 
     elif int(inputs[0]) == 3:
         inicio=input("Ingrese el año inicial de compra en formato AAAA-MM-DD: ")
@@ -152,6 +157,7 @@ while True:
             print('Ha ingresado una fecha inicial inválida')
         else:
             fin = input('Ingrese el año final de compra en formato AAAA-MM-DD: ')
+            start_time = time.process_time()
             formato = fin.split('-')
             if(len(formato) != 3 or len(formato[0]) != 4 or len(formato[1]) != 2 or len(formato[2]) != 2 or inicio > fin):
                 print('Ha ingresado una fecha final inválida')
@@ -162,9 +168,13 @@ while True:
                 print('De las cuales compró '+ str(controller.darObrasCompradas(lista)))
                 print('Las 3 primeras y últimas obras en el rango son:')
                 print(tabulate(artistas, headers=['Title', 'ArtistsName','Date','DateAcquired','Medium','Dimensions'], tablefmt='fancy_grid'))
+                stop_time = time.process_time()
+                elapsed_time_mseg = (stop_time - start_time)*1000
+                print(elapsed_time_mseg)
 
     elif int(inputs[0]) == 4:
         nombre=input("Digite el nombre del artista: ")
+        start_time = time.process_time()
         artista = controller.buscarArtista(catalog, nombre)
         if artista != False:
             lista = controller.darMediosArtista(catalog, artista)
@@ -186,11 +196,14 @@ while True:
             print('Las primeras y últimas 3 obras de esta técnica son: ')
             info = controller.darInfoObras3(primerMedio['Obras'])
             print(tabulate(info, headers=['Title', 'Date','Medium','Dimensions'], tablefmt='fancy_grid'))
+            stop_time = time.process_time()
+            elapsed_time_mseg = (stop_time - start_time)*1000
+            print(elapsed_time_mseg)
         else:
             print('Este artista no se encuentra en nuestra base de datos')
 
     elif int(inputs[0]) == 5:
-        nacionalidad=input("Digite la nacionalidad buscada: \n ")
+        nacionalidad=input("Digite la nacionalidad buscada:\n")
         lista=controller.obrasNacionalidad(catalog, nacionalidad)
         if lista==None:
             print("La nacionalidad no encuentra en el catalogo.")
@@ -199,6 +212,7 @@ while True:
 
     elif int(inputs[0]) == 6:
         nombre=input("Digite el nombre del departamento: ")
+        start_time = time.process_time()
         obrasDpto = controller.darObrasDepartamento(catalog, nombre)
         if obrasDpto != False:
             print('El MOMA va a transportar '+str(lt.size(obrasDpto))+' artefactos del departamento '+nombre)
@@ -211,10 +225,19 @@ while True:
             info = controller.darInfoObrasViejas(catalog,obrasDpto)
             print('Los 5 objetos más antiguos a transportar son:')
             print(tabulate(info, headers=['Title', 'ArtistsName','Classification','Date','Medium','Dimensions','TransCost(USD)'], tablefmt='fancy_grid'))
-
+            stop_time = time.process_time()
+            elapsed_time_mseg = (stop_time - start_time)*1000
+            print(elapsed_time_mseg)
         else:
             print('Este departamento no se encuentra en nuestra base de datos')
 
     else:
         sys.exit(0)
-sys.exit(0)
+
+
+
+
+
+ #start_time = time.process_time()
+ #stop_time = time.process_time()
+ #elapsed_time_mseg = (stop_time - start_time)*1000

@@ -56,11 +56,11 @@ def newCatalog():
                'departamentos': None }
     catalog['artists'] = lt.newList('ARRAY_LIST')
     catalog['artworks'] = lt.newList('ARRAY_LIST')
-    catalog["mediums"]=mp.newMap(maptype='PROBING', loadfactor= 0.80)
-    catalog['nationalities']= mp.newMap(maptype='PROBING',loadfactor=0.80)
-    catalog['añosArtistas'] = mp.newMap(maptype='PROBING',loadfactor=0.80)
-    catalog['fechasObras'] = mp.newMap(maptype='PROBING',loadfactor=0.80)
-    catalog['departamentos'] = mp.newMap(maptype='PROBING',loadfactor=0.80)
+    catalog["mediums"]=mp.newMap(maptype='CHAINING', loadfactor= 4.00)
+    catalog['nationalities']= mp.newMap(maptype='PROBING',loadfactor=4.00)
+    catalog['añosArtistas'] = mp.newMap(maptype='CHAINING',loadfactor=4.00)
+    catalog['fechasObras'] = mp.newMap(maptype='CHAINING',loadfactor=4.00)
+    catalog['departamentos'] = mp.newMap(maptype='CHAINING',loadfactor=4.00)
     return catalog
 
 # Funciones para agregar informacion al catalogo
@@ -130,7 +130,7 @@ def agregarArtistaFecha(catalog, artist):
         lista=me.getValue(entry)
         lt.addLast(lista, artist)
     else:
-        lista = lt.newList()
+        lista = lt.newList('ARRAY_LIST')
         lt.addLast(lista, artist)
         mp.put(mapa, fecha, lista)
 
@@ -142,7 +142,7 @@ def agregarObraFecha(catalog, artwork):
         lista=me.getValue(entry)
         lt.addLast(lista, artwork)
     else:
-        lista = lt.newList()
+        lista = lt.newList('ARRAY_LIST')
         lt.addLast(lista, artwork)
         mp.put(mapa, fecha, lista)
 
@@ -154,7 +154,7 @@ def agregarObraDepartamento(catalog, artwork):
         lista=me.getValue(entry)
         lt.addLast(lista, artwork)
     else:
-        lista = lt.newList()
+        lista = lt.newList('ARRAY_LIST')
         lt.addLast(lista, artwork)
         mp.put(mapa, dpto, lista)
 
@@ -416,7 +416,7 @@ def darInfoObra5(catalog,obra):
     artistas = darArtistasObra(catalog, obra)
     if artistas == '':
         artistas = 'Unkwnown'
-    costo = darCostoObra(obra)
+    costo = obra['Costo']
     return titulo, artistas, clasificacion, fecha, medio, dimensiones, costo
 
 
@@ -437,6 +437,8 @@ def darObrasDepartamento(catalog, nombre):
     if mp.contains(dptos, nombre):
         entry=mp.get(dptos, nombre)
         obrasdpto=me.getValue(entry)
+        for obra in lt.iterator(obrasdpto):
+            darCostoObra(obra)
         return merge.sort(obrasdpto, compararObrasPorCosto)
     else:
         return False
@@ -451,7 +453,7 @@ def darCostosas(catalog,lista):
     return respuesta
 
 def darViejas(catalog,lista):
-    lista = qk.sort(lista, cmpArtworkByDate)
+    lista = merge.sort(lista, cmpArtworkByDate)
     respuesta = []
     n = 1
     while n <= 5:
@@ -533,12 +535,13 @@ def darCostoObra(artwork):
             costo = tamano *72
     else:
         costo = 48
+    artwork['Costo'] = costo
     return costo
 
 def darCostoLista(lista):
     costo = 0
     for i in lt.iterator(lista):
-        costo += darCostoObra(i)
+        costo += i['Costo']
     return costo
 
 
@@ -619,10 +622,8 @@ def cmpListasMedios(l1,l2):
         return False
     
 def compararObrasPorCosto(artwork1, artwork2):
-    artwork1 = artwork1
-    costo1 = darCostoObra(artwork1)
-    artwork2 = artwork2
-    costo2 =darCostoObra(artwork2)
+    costo1 = artwork1['Costo']
+    costo2 =artwork2['Costo']
     if(costo1 > costo2):
         return True
     else:
@@ -633,3 +634,7 @@ def compararObrasPorCosto(artwork1, artwork2):
 def ordenarObrasPorFecha(lista):
     listadef=qk.sort(lista,cmpArtworkByDate)
     return listadef
+
+
+
+
